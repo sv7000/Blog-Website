@@ -1,5 +1,6 @@
 import {React, useState} from "react";
 import { Box, TextField, Button, styled, Typography } from "@mui/material";
+import { API } from "../services/api";
 
 const Component = styled(Box)`
   width: 500px;
@@ -44,17 +45,57 @@ const SignupButton = styled(Button)`
 
 const Typo = styled(Typography)`
     margin-top: 30px;
-     text-align: center;
-      color: #878787;
-
-
+    text-align: center;
+    color: #878787;
 `
+
+const Error = styled(Typography)`
+    font-size: 10px;
+    color: #ff6161;
+    line-height: 0;
+    margin-top: 10px;
+    font-weight: 600;
+`
+
+
+const loginValues = {
+  username: '',
+  password: '',
+}
+
+const signUpValues = {
+  name: '',
+  username: '',
+  password: '',
+}
+
 
 
 
 const Login = () => {
 
    const [toggle, setToggle] = useState("login");
+   const [login, setLogin] = useState(loginValues);
+   const [signup, setSignup] = useState(signUpValues);
+   const [error, setError] = useState('');
+
+   const getInputValue = (e) => {
+    setSignup({...signup, [e.target.name]: e.target.value});
+    console.log(signup);
+   }
+
+  // api call on button click
+   const signUpUser = async () => {
+    console.log(signup);
+      let response = await API.userSignup(signup);
+      if(response.isSuccess){
+        setError('');
+        setSignup(signUpValues);
+        setToggle('login');
+      }else{
+        setError('Something went wrong');
+      }
+   } 
 
 
   const Image =
@@ -65,9 +106,9 @@ const Login = () => {
       <ImageComp src={Image} alt="Login" />
       { toggle === "login" ? (
         <Wrapper>
-          <TextField id="outlined-basic" label="Enter Username" variant="outlined" />
+          <TextField id="outlined-basic" label="Enter Username" name="username" onChange={(e) => getInputValue(e)}   variant="outlined" />
 
-          <TextField id="outlined-basic" label="Enter Password" variant="outlined" />
+          <TextField id="outlined-basic" label="Enter Password" name="password" onChange={(e) => getInputValue(e)} variant="outlined" />
 
           <LoginButton variant="contained">Login</LoginButton>
           <Typo >OR</Typo>
@@ -76,10 +117,12 @@ const Login = () => {
 
       ): (
         <Wrapper>
-          <TextField id="outlined-basic" label="Enter Name" variant="outlined" />
-          <TextField id="outlined-basic" label="Enter Username" variant="outlined" />
-          <TextField id="outlined-basic" label="Enter Password" variant="outlined" />
-          <SignupButton>Sign Up</SignupButton>
+          <TextField id="outlined-basic" label="Enter Name" name="name" variant="outlined" onChange={(e) => getInputValue(e)}/>
+          <TextField id="outlined-basic" label="Enter Username" name="username" variant="outlined" onChange={(e) => getInputValue(e)}/>
+          <TextField id="outlined-basic" label="Enter Password" name="password" variant="outlined" onChange={(e) => getInputValue(e)}/>
+
+          {error && <Error>{error}</Error>}
+          <SignupButton onClick={()=> signUpUser()}>Sign Up</SignupButton>
 
           <Typo >OR</Typo>
           <LoginButton variant="contained" onClick={()=> (setToggle("login"))}>Already have an account</LoginButton>
